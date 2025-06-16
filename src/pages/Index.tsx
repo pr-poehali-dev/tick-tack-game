@@ -42,7 +42,7 @@ const Index = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="retro-title text-4xl mb-2">TIC-TAC-TOE</h1>
-          <div className="text-sm text-green-400">RETRO ARCADE EDITION</div>
+          <div className="text-sm text-orange-400">RETRO ARCADE EDITION</div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -75,7 +75,7 @@ const Index = () => {
                 {getStatusMessage()}
               </div>
               {currentPlayer === "X" && !winner && (
-                <div className="text-green-300 text-sm">Выберите клетку</div>
+                <div className="text-orange-300 text-sm">Выберите клетку</div>
               )}
             </div>
 
@@ -95,7 +95,7 @@ const Index = () => {
 
             <div className="retro-border rounded-lg p-4 text-center">
               <h3 className="retro-title text-lg mb-2">УПРАВЛЕНИЕ</h3>
-              <div className="text-xs text-green-400 space-y-1">
+              <div className="text-xs text-orange-400 space-y-1">
                 <div>Х - ИГРОК</div>
                 <div>О - КОМПЬЮТЕР</div>
                 <div>КЛИКАЙТЕ ПО КЛЕТКАМ</div>
