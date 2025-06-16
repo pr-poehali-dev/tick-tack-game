@@ -180,6 +180,12 @@
     animation: blink 1s infinite;
   }
 
+  .blinking {
+    animation: blink 1s infinite;
+    color: orange;
+    text-shadow: 0 0 10px orange;
+  }
+
   .fade-blink {
     animation: fade-blink 1.5s infinite ease-in-out;
   }
