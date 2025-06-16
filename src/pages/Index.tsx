@@ -11,6 +11,7 @@ const Index = () => {
     currentPlayer,
     winner,
     winningLine,
+    blinkingCells,
     playerScore,
     computerScore,
     draws,
@@ -66,6 +67,7 @@ const Index = () => {
               currentPlayer={currentPlayer}
               winner={winner}
               winningLine={winningLine}
+              blinkingCells={blinkingCells}
             />
 
             <div className="retro-border rounded-lg p-4 mt-4 mb-4 text-center">

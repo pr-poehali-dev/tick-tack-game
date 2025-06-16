@@ -17,13 +17,13 @@ const GameBoard = ({
   winningLine,
   blinkingCells = [],
 }: GameBoardProps) => {
-  const [blinkingCells, setBlinkingCells] = useState<number[]>([]);
+  const [winningAnimation, setWinningAnimation] = useState<number[]>([]);
 
   useEffect(() => {
     if (winningLine) {
-      setBlinkingCells(winningLine);
+      setWinningAnimation(winningLine);
       const timer = setTimeout(() => {
-        setBlinkingCells([]);
+        setWinningAnimation([]);
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -35,7 +35,7 @@ const GameBoard = ({
         <div
           key={index}
           className={`retro-cell ${cell ? cell.toLowerCase() : ""} ${
-            winningLine?.includes(index) ? "blink retro-glow" : ""
+            winningAnimation.includes(index) ? "blink retro-glow" : ""
           } ${
             blinkingCells.includes(index) ? "fade-blink" : ""
           } ${winner ? "cursor-not-allowed" : ""}`}
