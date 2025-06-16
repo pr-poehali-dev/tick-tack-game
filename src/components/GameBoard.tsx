@@ -37,7 +37,7 @@ const GameBoard = ({
           className={`retro-cell ${cell ? cell.toLowerCase() : ""} ${
             winningAnimation.includes(index) ? "blink retro-glow" : ""
           } ${
-            blinkingCells.includes(index) ? "fade-blink" : ""
+            blinkingCells.includes(index) ? "orange-blink" : ""
           } ${winner ? "cursor-not-allowed" : ""}`}
           onClick={() => !winner && !cell && onCellClick(index)}
         >
