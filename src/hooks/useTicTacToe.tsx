@@ -28,6 +28,8 @@ export const useTicTacToe = () => {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
     "medium",
   );
+  const [playerXMoves, setPlayerXMoves] = useState<number[]>([]);
+  const [playerOMoves, setPlayerOMoves] = useState<number[]>([]);
   const [history, setHistory] = useState<GameMove[]>([]);
 
   const checkWinner = useCallback((board: (string | null)[]) => {
@@ -122,6 +124,29 @@ export const useTicTacToe = () => {
 
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
+
+    // Обновляем историю ходов для текущего игрока
+    let newPlayerXMoves = [...playerXMoves];
+    let newPlayerOMoves = [...playerOMoves];
+
+    if (currentPlayer === "X") {
+      newPlayerXMoves.push(index);
+      // Если у игрока X уже 2 хода, удаляем самый старый
+      if (newPlayerXMoves.length > 2) {
+        const oldestMove = newPlayerXMoves.shift()!;
+        newBoard[oldestMove] = null;
+      }
+      setPlayerXMoves(newPlayerXMoves);
+    } else {
+      newPlayerOMoves.push(index);
+      // Если у игрока O уже 2 хода, удаляем самый старый
+      if (newPlayerOMoves.length > 2) {
+        const oldestMove = newPlayerOMoves.shift()!;
+        newBoard[oldestMove] = null;
+      }
+      setPlayerOMoves(newPlayerOMoves);
+    }
+
     setBoard(newBoard);
 
     const newHistory = [
@@ -155,6 +180,17 @@ export const useTicTacToe = () => {
         const computerMove = getComputerMove(board);
         const newBoard = [...board];
         newBoard[computerMove] = "O";
+
+        // Обновляем историю ходов для компьютера
+        let newPlayerOMoves = [...playerOMoves];
+        newPlayerOMoves.push(computerMove);
+
+        // Если у компьютера уже 2 хода, удаляем самый старый
+        if (newPlayerOMoves.length > 2) {
+          const oldestMove = newPlayerOMoves.shift()!;
+          newBoard[oldestMove] = null;
+        }
+        setPlayerOMoves(newPlayerOMoves);
         setBoard(newBoard);
 
         const newHistory = [
@@ -186,6 +222,8 @@ export const useTicTacToe = () => {
     setCurrentPlayer("X");
     setWinner(null);
     setWinningLine(null);
+    setPlayerXMoves([]);
+    setPlayerOMoves([]);
   };
 
   const resetScore = () => {
