@@ -64,9 +64,9 @@ export const useTicTacToe = () => {
       for (const move of getAvailableMoves(board)) {
         const newBoard = [...board];
         newBoard[move] = "O";
-        const eval = minimax(newBoard, depth + 1, false, alpha, beta);
-        maxEval = Math.max(maxEval, eval);
-        alpha = Math.max(alpha, eval);
+        const evaluation = minimax(newBoard, depth + 1, false, alpha, beta);
+        maxEval = Math.max(maxEval, evaluation);
+        alpha = Math.max(alpha, evaluation);
         if (beta <= alpha) break;
       }
       return maxEval;
@@ -75,9 +75,9 @@ export const useTicTacToe = () => {
       for (const move of getAvailableMoves(board)) {
         const newBoard = [...board];
         newBoard[move] = "X";
-        const eval = minimax(newBoard, depth + 1, true, alpha, beta);
-        minEval = Math.min(minEval, eval);
-        beta = Math.min(beta, eval);
+        const evaluation = minimax(newBoard, depth + 1, true, alpha, beta);
+        minEval = Math.min(minEval, evaluation);
+        beta = Math.min(beta, evaluation);
         if (beta <= alpha) break;
       }
       return minEval;
