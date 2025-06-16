@@ -21,7 +21,7 @@ const DifficultySelector = ({
           <button
             key={value}
             className={`retro-button text-sm px-3 py-2 ${
-              difficulty === value ? "bg-green-500 text-black" : ""
+              difficulty === value ? "bg-orange-500 text-black" : ""
             }`}
             onClick={() => onDifficultyChange(value)}
           >
