@@ -60,15 +60,6 @@ const Index = () => {
 
           {/* Game Board */}
           <div className="flex flex-col items-center">
-            <div className="retro-border rounded-lg p-4 mb-4 text-center">
-              <div className="retro-title text-xl mb-2">
-                {getStatusMessage()}
-              </div>
-              {currentPlayer === "X" && !winner && (
-                <div className="text-green-300 text-sm">Выберите клетку</div>
-              )}
-            </div>
-
             <GameBoard
               board={board}
               onCellClick={makeMove}
@@ -77,7 +68,16 @@ const Index = () => {
               winningLine={winningLine}
             />
 
-            <div className="flex gap-4 mt-6">
+            <div className="retro-border rounded-lg p-4 mt-4 mb-4 text-center">
+              <div className="retro-title text-xl mb-2">
+                {getStatusMessage()}
+              </div>
+              {currentPlayer === "X" && !winner && (
+                <div className="text-green-300 text-sm">Выберите клетку</div>
+              )}
+            </div>
+
+            <div className="flex gap-4">
               <button className="retro-button" onClick={resetGame}>
                 НОВАЯ ИГРА
               </button>

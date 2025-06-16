@@ -6,6 +6,7 @@ interface GameBoardProps {
   currentPlayer: string;
   winner: string | null;
   winningLine: number[] | null;
+  blinkingCells?: number[];
 }
 
 const GameBoard = ({
@@ -14,6 +15,7 @@ const GameBoard = ({
   currentPlayer,
   winner,
   winningLine,
+  blinkingCells = [],
 }: GameBoardProps) => {
   const [blinkingCells, setBlinkingCells] = useState<number[]>([]);
 
@@ -33,7 +35,9 @@ const GameBoard = ({
         <div
           key={index}
           className={`retro-cell ${cell ? cell.toLowerCase() : ""} ${
-            blinkingCells.includes(index) ? "blink retro-glow" : ""
+            winningLine?.includes(index) ? "blink retro-glow" : ""
+          } ${
+            blinkingCells.includes(index) ? "fade-blink" : ""
           } ${winner ? "cursor-not-allowed" : ""}`}
           onClick={() => !winner && !cell && onCellClick(index)}
         >

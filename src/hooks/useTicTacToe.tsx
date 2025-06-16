@@ -30,6 +30,7 @@ export const useTicTacToe = () => {
   );
   const [playerXMoves, setPlayerXMoves] = useState<number[]>([]);
   const [playerOMoves, setPlayerOMoves] = useState<number[]>([]);
+  const [blinkingCells, setBlinkingCells] = useState<number[]>([]);
   const [history, setHistory] = useState<GameMove[]>([]);
 
   const checkWinner = useCallback((board: (string | null)[]) => {
@@ -128,24 +129,43 @@ export const useTicTacToe = () => {
     // Обновляем историю ходов для текущего игрока
     let newPlayerXMoves = [...playerXMoves];
     let newPlayerOMoves = [...playerOMoves];
+    let newBlinkingCells = [...blinkingCells];
 
     if (currentPlayer === "X") {
       newPlayerXMoves.push(index);
-      // Если у игрока X уже 2 хода, удаляем самый старый
-      if (newPlayerXMoves.length > 2) {
+      // При 3-м ходе первый начинает мигать
+      if (newPlayerXMoves.length === 3) {
+        const firstMove = newPlayerXMoves[0];
+        newBlinkingCells.push(firstMove);
+      }
+      // При 4-м ходе удаляем первый (который мигал)
+      if (newPlayerXMoves.length > 3) {
         const oldestMove = newPlayerXMoves.shift()!;
         newBoard[oldestMove] = null;
+        newBlinkingCells = newBlinkingCells.filter(
+          (cell) => cell !== oldestMove,
+        );
       }
       setPlayerXMoves(newPlayerXMoves);
     } else {
       newPlayerOMoves.push(index);
-      // Если у игрока O уже 2 хода, удаляем самый старый
-      if (newPlayerOMoves.length > 2) {
+      // При 3-м ходе первый начинает мигать
+      if (newPlayerOMoves.length === 3) {
+        const firstMove = newPlayerOMoves[0];
+        newBlinkingCells.push(firstMove);
+      }
+      // При 4-м ходе удаляем первый (который мигал)
+      if (newPlayerOMoves.length > 3) {
         const oldestMove = newPlayerOMoves.shift()!;
         newBoard[oldestMove] = null;
+        newBlinkingCells = newBlinkingCells.filter(
+          (cell) => cell !== oldestMove,
+        );
       }
       setPlayerOMoves(newPlayerOMoves);
     }
+
+    setBlinkingCells(newBlinkingCells);
 
     setBoard(newBoard);
 
@@ -183,14 +203,24 @@ export const useTicTacToe = () => {
 
         // Обновляем историю ходов для компьютера
         let newPlayerOMoves = [...playerOMoves];
+        let newBlinkingCells = [...blinkingCells];
         newPlayerOMoves.push(computerMove);
 
-        // Если у компьютера уже 2 хода, удаляем самый старый
-        if (newPlayerOMoves.length > 2) {
+        // При 3-м ходе первый начинает мигать
+        if (newPlayerOMoves.length === 3) {
+          const firstMove = newPlayerOMoves[0];
+          newBlinkingCells.push(firstMove);
+        }
+        // При 4-м ходе удаляем первый (который мигал)
+        if (newPlayerOMoves.length > 3) {
           const oldestMove = newPlayerOMoves.shift()!;
           newBoard[oldestMove] = null;
+          newBlinkingCells = newBlinkingCells.filter(
+            (cell) => cell !== oldestMove,
+          );
         }
         setPlayerOMoves(newPlayerOMoves);
+        setBlinkingCells(newBlinkingCells);
         setBoard(newBoard);
 
         const newHistory = [
@@ -224,6 +254,7 @@ export const useTicTacToe = () => {
     setWinningLine(null);
     setPlayerXMoves([]);
     setPlayerOMoves([]);
+    setBlinkingCells([]);
   };
 
   const resetScore = () => {
@@ -241,6 +272,7 @@ export const useTicTacToe = () => {
     currentPlayer,
     winner,
     winningLine,
+    blinkingCells,
     playerScore,
     computerScore,
     draws,
