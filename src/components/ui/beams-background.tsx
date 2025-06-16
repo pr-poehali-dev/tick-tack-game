@@ -1,59 +1,20 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-interface AnimatedGradientBackgroundProps {
+interface BeamsBackgroundProps {
   className?: string;
   children?: React.ReactNode;
   intensity?: "subtle" | "medium" | "strong";
-}
-
-interface Beam {
-  x: number;
-  y: number;
-  width: number;
-  length: number;
-  angle: number;
-  speed: number;
-  opacity: number;
-  hue: number;
-  pulse: number;
-  pulseSpeed: number;
-}
-
-function createBeam(width: number, height: number): Beam {
-  const angle = -35 + Math.random() * 10;
-  return {
-    x: Math.random() * width * 1.5 - width * 0.25,
-    y: Math.random() * height * 1.5 - height * 0.25,
-    width: 30 + Math.random() * 60,
-    length: height * 2.5,
-    angle: angle,
-    speed: 0.6 + Math.random() * 1.2,
-    opacity: 0.12 + Math.random() * 0.16,
-    hue: 190 + Math.random() * 70,
-    pulse: Math.random() * Math.PI * 2,
-    pulseSpeed: 0.02 + Math.random() * 0.03,
-  };
 }
 
 export function BeamsBackground({
   className,
   children,
   intensity = "subtle",
-}: AnimatedGradientBackgroundProps) {
+}: BeamsBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const beamsRef = useRef<Beam[]>([]);
-  const animationFrameRef = useRef<number>(0);
-  const MINIMUM_BEAMS = 15;
-
-  const opacityMap = {
-    subtle: 0.3,
-    medium: 0.5,
-    strong: 0.7,
-  };
+  const animationRef = useRef<number>();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,101 +23,92 @@ export function BeamsBackground({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const updateCanvasSize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
-
-      const totalBeams = MINIMUM_BEAMS;
-      beamsRef.current = Array.from({ length: totalBeams }, () =>
-        createBeam(canvas.width, canvas.height),
-      );
+    // Настройка размеров canvas
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
-    updateCanvasSize();
-    window.addEventListener("resize", updateCanvasSize);
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
 
-    function resetBeam(beam: Beam, index: number, totalBeams: number) {
-      if (!canvas) return beam;
+    // Параметры лучей
+    const beams: Array<{
+      x: number;
+      y: number;
+      length: number;
+      width: number;
+      angle: number;
+      speed: number;
+      color: string;
+      opacity: number;
+    }> = [];
 
-      const column = index % 3;
-      const spacing = canvas.width / 3;
-
-      beam.y = canvas.height + 100;
-      beam.x =
-        column * spacing + spacing / 2 + (Math.random() - 0.5) * spacing * 0.5;
-      beam.width = 80 + Math.random() * 80;
-      beam.speed = 0.3 + Math.random() * 0.3;
-      beam.hue = 25 + (index * 50) / totalBeams; // Orange/yellow hues for retro feel
-      beam.opacity = 0.15 + Math.random() * 0.1;
-      return beam;
+    // Создание начальных лучей
+    for (let i = 0; i < 8; i++) {
+      beams.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * 200,
+        length: 200 + Math.random() * 400,
+        width: 2 + Math.random() * 4,
+        angle: -Math.PI / 2 + (Math.random() - 0.5) * 0.3,
+        speed: 1 + Math.random() * 2,
+        color: `hsl(${30 + Math.random() * 60}, 80%, 60%)`, // Оранжево-желтые тона
+        opacity: 0.3 + Math.random() * 0.4,
+      });
     }
 
-    function drawBeam(ctx: CanvasRenderingContext2D, beam: Beam) {
-      ctx.save();
-      ctx.translate(beam.x, beam.y);
-      ctx.rotate((beam.angle * Math.PI) / 180);
+    const animate = () => {
+      // Очистка canvas
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const pulsingOpacity =
-        beam.opacity *
-        (0.8 + Math.sin(beam.pulse) * 0.2) *
-        opacityMap[intensity];
-
-      const gradient = ctx.createLinearGradient(0, 0, 0, beam.length);
-
-      gradient.addColorStop(0, `hsla(${beam.hue}, 85%, 65%, 0)`);
-      gradient.addColorStop(
-        0.1,
-        `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity * 0.3})`,
-      );
-      gradient.addColorStop(
-        0.4,
-        `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity})`,
-      );
-      gradient.addColorStop(
-        0.6,
-        `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity})`,
-      );
-      gradient.addColorStop(
-        0.9,
-        `hsla(${beam.hue}, 85%, 65%, ${pulsingOpacity * 0.3})`,
-      );
-      gradient.addColorStop(1, `hsla(${beam.hue}, 85%, 65%, 0)`);
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-beam.width / 2, 0, beam.width, beam.length);
-      ctx.restore();
-    }
-
-    function animate() {
-      if (!canvas || !ctx) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const totalBeams = beamsRef.current.length;
-      beamsRef.current.forEach((beam, index) => {
+      // Анимация лучей
+      beams.forEach((beam, index) => {
+        // Движение луча
         beam.y -= beam.speed;
-        beam.pulse += beam.pulseSpeed;
+        beam.x += Math.sin(Date.now() * 0.001 + index) * 0.5;
 
-        if (beam.y + beam.length < -100) {
-          resetBeam(beam, index, totalBeams);
+        // Сброс луча когда он выходит за границы
+        if (beam.y + beam.length < 0) {
+          beam.y = canvas.height + Math.random() * 200;
+          beam.x = Math.random() * canvas.width;
         }
 
-        drawBeam(ctx, beam);
+        // Рисование луча
+        ctx.save();
+        ctx.translate(beam.x, beam.y);
+        ctx.rotate(beam.angle);
+
+        // Создание градиента для луча
+        const gradient = ctx.createLinearGradient(0, 0, 0, beam.length);
+        gradient.addColorStop(0, `hsla(40, 80%, 60%, 0)`);
+        gradient.addColorStop(0.2, `hsla(40, 80%, 60%, ${beam.opacity * 0.8})`);
+        gradient.addColorStop(0.8, `hsla(50, 90%, 70%, ${beam.opacity})`);
+        gradient.addColorStop(1, `hsla(60, 100%, 80%, 0)`);
+
+        // Рисование основного луча
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-beam.width / 2, 0, beam.width, beam.length);
+
+        // Добавление свечения
+        ctx.shadowColor = beam.color;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = `hsla(45, 90%, 70%, ${beam.opacity * 0.3})`;
+        ctx.fillRect(-beam.width * 2, 0, beam.width * 4, beam.length);
+
+        ctx.restore();
       });
 
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }
+      animationRef.current = requestAnimationFrame(animate);
+    };
 
     animate();
 
     return () => {
-      window.removeEventListener("resize", updateCanvasSize);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      window.removeEventListener("resize", resizeCanvas);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
       }
     };
   }, [intensity]);
@@ -165,25 +117,34 @@ export function BeamsBackground({
     <div
       className={cn("relative min-h-screen w-full overflow-hidden", className)}
     >
+      {/* Базовый фон */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
+
+      {/* Canvas с лучами */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 z-0"
-        style={{ filter: "blur(20px)" }}
+        className="absolute inset-0 z-10 mix-blend-screen"
       />
 
+      {/* Дополнительные эффекты */}
       <motion.div
-        className="absolute inset-0 bg-black/20 z-0"
+        className="absolute inset-0 z-20"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 50%, rgba(255, 165, 0, 0.1) 0%, transparent 60%)",
+        }}
         animate={{
-          opacity: [0.1, 0.3, 0.1],
+          opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
-          duration: 8,
+          duration: 4,
           ease: "easeInOut",
-          repeat: Number.POSITIVE_INFINITY,
+          repeat: Infinity,
         }}
       />
 
-      <div className="relative z-10">{children}</div>
+      {/* Контент */}
+      <div className="relative z-30">{children}</div>
     </div>
   );
 }
